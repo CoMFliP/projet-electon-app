@@ -1,0 +1,23 @@
+.button {
+  color: azure;
+  font-size: large;
+
+  border-radius: 0.5rem;
+  background-color: #414754;
+  border: solid 0px;
+  padding: 0.5rem;
+
+  margin: 0.25rem;
+  width: max-content;
+  height: max-content;
+
+  white-space: nowrap;
+
+  &:hover {
+    background-color: #484f5e;
+  }
+
+  &:disabled {
+    background-color: #7d8594;
+  }
+}

@@ -5,7 +5,10 @@
   height: 100%;
 
   text-align: center;
-  background-color: #282c34;
+  
+  div {
+    z-index: 1;
+  }
 }
 
 .app-logo {

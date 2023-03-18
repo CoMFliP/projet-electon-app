@@ -1,7 +1,7 @@
 import logo from "./logo.svg";
 import { useEffect, useState } from "react";
 
-import MediaPlayer from './components/mediaPlayer'
+import MediaPlayer from "./components/mediaPlayer";
 import Header from "./components/header";
 import Button from "./components/button";
 
@@ -12,7 +12,7 @@ function App() {
 
   const openDialog = () => {
     window.dialog.open();
-    window.dialog.getFilePath(setFile);
+    window.dialog.getPath(setFile);
   };
 
   useEffect(() => {
@@ -27,9 +27,11 @@ function App() {
 
   return (
     <div className={styles.app}>
-      <Header content="YT Player" />
-      <Button onClick={openDialog} content={"Open File"} />
-      <Button onClick={openDialog} content={"Open URL (YouTube)"} />
+      <div>
+        <Header content="YT Player" />
+        <Button onClick={openDialog}>Open File</Button>
+        {/* <Button onClick={openDialog} content={"Open URL (YouTube)"} /> */}
+      </div>
       <MediaPlayer src={filePath} />
     </div>
   );

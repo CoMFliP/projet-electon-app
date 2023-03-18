@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Children } from "react";
 
 import styles from "./index.module.scss";
 
@@ -9,7 +9,7 @@ const button = (props) => {
       onClick={props.onClick}
       disabled={props.disabled}
     >
-      {props.content}
+      {props.children}
     </button>
   );
 };

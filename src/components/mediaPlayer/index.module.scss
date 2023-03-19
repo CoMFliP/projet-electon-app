@@ -11,7 +11,7 @@
   padding: 3rem;
   border-radius: 0.5rem;
 
-  background-color: rgba(40, 44, 52, 0.5);
+  background-color: rgba(40, 44, 52, 0.85);
 
   div.line {
     display: flex;
@@ -43,12 +43,4 @@
   span.title {
     width: max-content;
   }
-}
-
-.canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  z-index: 0;
-  background-color: #282c34;
 }

@@ -1,5 +1,7 @@
 import logo from "./logo.svg";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+
+import AudioInput from "./components/audioInput";
 
 import MediaPlayer from "./components/mediaPlayer";
 import Header from "./components/header";
@@ -15,24 +17,24 @@ function App() {
     window.dialog.getPath(setFile);
   };
 
+  const audioRef = useRef();
+
+
   useEffect(() => {
     return () => {
       window.dialog.removeEventListener();
     };
   }, []);
 
-  useEffect(() => {
-    console.log(filePath);
-  }, [filePath]);
-
   return (
     <div className={styles.app}>
-      <div>
+      <div className={styles.header}>
         <Header content="YT Player" />
         <Button onClick={openDialog}>Open File</Button>
         {/* <Button onClick={openDialog} content={"Open URL (YouTube)"} /> */}
       </div>
-      <MediaPlayer src={filePath} />
+      <AudioInput src={filePath} ref={audioRef} />
+      <MediaPlayer className={styles.mediaplayer} audioChannel={audioRef} />
     </div>
   );
 }

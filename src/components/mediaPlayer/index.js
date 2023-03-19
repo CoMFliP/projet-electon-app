@@ -1,23 +1,28 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 
 import styles from "./index.module.scss";
 
+import AudioVisualisator from "../audioVisualisator";
 import Button from "../button";
 import Input from "../input";
 
-const MediaPlayer = (props) => {
-  const [isPlay, setPlayable] = useState(false);
+const MediaPlayer = ({ audioChannel }) => {
+  const [player, setPlayer] = useState({
+    isPlay: false,
+    isCanPlay: false,
+    currentTime: 0,
+    duration: 0,
+    volume: 100,
+    isMute: false,
+    info: {
+      title: "No Data",
+    },
+    visualisation: {
+      isEnabled: true,
+      theme: "default",
+    },
+  });
 
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-
-  const [volume, setVolume] = useState(100);
-  const [isMute, setMute] = useState(false);
-
-  const [metadata, setMetadata] = useState();
-
-  const audioRef = useRef();
-  const canvasRef = useRef();
   let timer;
 
   const calculateTime = (secs) => {
@@ -27,176 +32,177 @@ const MediaPlayer = (props) => {
     return `${minutes}:${returnedSeconds}`;
   };
 
-  const onLoadedMetadata = async () => {
-    var data = await window.file.getMetadata(
-      props.src.replace("safe-file://", "")
-    );
-
-    console.log(data);
-
-    var src;
-
-    if (!src) {
-      var context = new AudioContext();
-      var src = context.createMediaElementSource(audioRef.current);
-      var analyser = context.createAnalyser();
-      src.connect(analyser);
-      analyser.connect(context.destination);
-    }
-
-    canvasRef.current.width = window.innerWidth;
-    canvasRef.current.height = window.innerHeight;
-    var ctx = canvasRef.current.getContext("2d");
-    ctx.clearRect(0, 0, WIDTH, HEIGHT);
-
-    analyser.fftSize = 512;
-
-    var bufferLength = analyser.frequencyBinCount;
-
-    var dataArray = new Uint8Array(bufferLength);
-
-    var WIDTH = canvasRef.current.width;
-    var HEIGHT = canvasRef.current.height;
-
-    var barWidth = (WIDTH / bufferLength) * 4;
-    var barHeight;
-    var x = 0;
-
-    function renderFrame() {
-      x = 0;
-      requestAnimationFrame(renderFrame);
-      analyser.getByteFrequencyData(dataArray);
-
-      ctx.fillStyle = "#282c34";
-      ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
-      for (var i = 0; i < bufferLength; i++) {
-        barHeight = dataArray[i] / 2;
-
-        var grd = ctx.createLinearGradient(0, 0, 0, HEIGHT);
-        grd.addColorStop(0, `rgba(0, 0, 255, ${barHeight / 100})`);
-        grd.addColorStop(0.5, `rgba(255, 0, 0, ${barHeight / 100})`);
-        grd.addColorStop(0.75, `rgba(255, 255, 0, ${barHeight / 100})`);
-        grd.addColorStop(1, `rgba(0, 255, 0, ${barHeight / 100})`);
-        ctx.fillStyle = grd;
-
-        // ctx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
-
-        ctx.strokeStyle = "#0000";
-
-        ctx.fillRect(
-          x,
-          HEIGHT - barHeight * 4.2,
-          barWidth,
-          barHeight * 4.2
-        );
-
-        x += barWidth + 1;
-      }
-    }
-
-    renderFrame();
-
-    setPlayable(false);
-    clearInterval(timer);
-    timer = setInterval(() => {
-      setCurrentTime(Math.floor(audioRef.current.currentTime));
-      setDuration(Math.floor(audioRef.current.duration));
-    });
-  };
-
-  const onEnded = () => {
-    setPlayable(false);
-    setCurrentTime(0);
-    audioRef.current.currentTime = 0;
-  };
-
   const handleChangeVolume = (e) => {
-    setVolume(e.target.value);
-    audioRef.current.volume = e.target.value / 100;
+    setPlayer((prevState) => ({ ...prevState, volume: e.target.value }));
+    audioChannel.current.volume = e.target.value / 100;
   };
 
   const handleChangeTime = (e) => {
-    setCurrentTime(e.target.value);
-    audioRef.current.currentTime = e.target.value;
+    setPlayer((prevState) => ({ ...prevState, currentTime: e.target.value }));
+    audioChannel.current.currentTime = e.target.value;
   };
 
-  useEffect(() => {
-    if (isPlay) {
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
-    }
-  }, [isPlay]);
+  useLayoutEffect(() => {
+    audioChannel.current.addEventListener("loadedmetadata", async () => {
+      var data = await window.file.getMetadata(
+        audioChannel.current.currentSrc.replace("safe-file://", "")
+      );
+
+      let parseData = (data) => {
+        var obj = new Object();
+
+        if (data.tags) {
+          obj = { ...obj, title: `${data.tags.artist} - ${data.tags.title}` };
+        } else {
+          obj = {
+            ...obj,
+            title:
+              audioChannel.current.currentSrc.split("\\")[
+                audioChannel.current.currentSrc.split("\\").length - 1
+              ],
+          };
+        }
+
+        return obj;
+      };
+
+      console.log(data);
+
+      setPlayer((prevState) => ({
+        ...prevState,
+        isPlay: false,
+        isCanPlay: true,
+        info: parseData(data),
+      }));
+
+      clearInterval(timer);
+      timer = setInterval(() => {
+        setPlayer((prevState) => ({
+          ...prevState,
+          currentTime: Math.floor(audioChannel.current.currentTime),
+        }));
+      });
+      setPlayer((prevState) => ({
+        ...prevState,
+        duration: Math.floor(audioChannel.current.duration),
+      }));
+    });
+
+    audioChannel.current.addEventListener("ended", () => {
+      setPlayer((prevState) => ({
+        ...prevState,
+        isPlay: false,
+        currentTime: 0,
+      }));
+      audioChannel.current.currentTime = 0;
+    });
+
+    return () => {};
+  }, []);
 
   useEffect(() => {
-    if (isMute) {
-      audioRef.current.muted = true;
+    if (player.isPlay) {
+      audioChannel.current.play();
     } else {
-      audioRef.current.muted = false;
+      audioChannel.current.pause();
     }
-  }, [isMute]);
+  }, [player.isPlay]);
+
+  useEffect(() => {
+    if (player.isMute) {
+      audioChannel.current.muted = true;
+    } else {
+      audioChannel.current.muted = false;
+    }
+  }, [player.isMute]);
+
 
   return (
     <>
       <div className={styles.player}>
-        <audio
-          src={props.src}
-          preload="metadata"
-          ref={audioRef}
-          onLoadedMetadata={onLoadedMetadata}
-          onEnded={onEnded}
-        ></audio>
         <div className={styles.line}>
-          <span className={styles.title}>
-            {props.src != null
-              ? props.src.split("\\")[props.src.split("\\").length - 1]
-              : "No Data"}
-          </span>
+          <span className={styles.title}>{player.info.title}</span>
         </div>
         <div className={styles.line}>
           <Button
             onClick={() => {
-              isPlay ? setPlayable(false) : setPlayable(true);
+              player.isPlay
+                ? setPlayer((prevState) => ({ ...prevState, isPlay: false }))
+                : setPlayer((prevState) => ({ ...prevState, isPlay: true }));
             }}
-            disabled={props.src != null ? false : true}
+            disabled={player.isCanPlay ? false : true}
           >
-            {isPlay ? "| |" : "▶"}
+            {player.isPlay ? "| |" : "▶"}
           </Button>
           <Button
             onClick={() => {
-              isMute ? setMute(false) : setMute(true);
+              player.visualisation.isEnabled == true
+                ? setPlayer((prevState) => ({
+                    ...prevState,
+                    visualisation: {
+                      ...prevState.visualisation,
+                      isEnabled: false,
+                    },
+                  }))
+                : setPlayer((prevState) => ({
+                    ...prevState,
+                    visualisation: {
+                      ...prevState.visualisation,
+                      isEnabled: true,
+                    },
+                  }));
             }}
           >
-            {isMute ? "🔇" : "🔈"}
+            {"⚠️"}
           </Button>
+          <Button
+            onClick={() => {
+              player.isMute
+                ? setPlayer((prevState) => ({
+                    ...prevState,
+                    isMute: false,
+                  }))
+                : setPlayer((prevState) => ({
+                    ...prevState,
+                    isMute: true,
+                  }));
+            }}
+          >
+            {player.isMute ? "🔇" : "🔈"}
+          </Button>
+
           <Input
             type="range"
-            value={volume}
+            value={player.volume}
             max="100"
             step="1"
             onChange={handleChangeVolume}
-            disabled={isMute}
+            disabled={player.isMute}
           />
-          <span className={styles.value}>{volume}</span>
+          <span className={styles.value}>{player.volume}</span>
         </div>
         <div className={styles.line}>
           <span className={styles.value} className="time">
-            {calculateTime(currentTime)}
+            {calculateTime(player.currentTime)}
           </span>
           <Input
             type="range"
-            value={currentTime}
-            max={duration}
+            value={player.currentTime}
+            max={player.duration === null ? 0 : player.duration}
             onChange={handleChangeTime}
           />
           <span className={styles.value} className="time">
-            {calculateTime(duration)}
+            {calculateTime(player.duration)}
           </span>
         </div>
       </div>
-      <canvas className={styles.canvas} ref={canvasRef}></canvas>
+      <AudioVisualisator
+        audioChannel={audioChannel}
+        isEnabled={player.visualisation.isEnabled}
+        theme={player.visualisation.theme}
+      />
     </>
   );
 };
+
 export default MediaPlayer;

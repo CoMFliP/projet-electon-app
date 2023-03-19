@@ -19,7 +19,6 @@ function App() {
 
   const audioRef = useRef();
 
-
   useEffect(() => {
     return () => {
       window.dialog.removeEventListener();
@@ -30,11 +29,9 @@ function App() {
     <div className={styles.app}>
       <div className={styles.header}>
         <Header content="YT Player" />
-        <Button onClick={openDialog}>Open File</Button>
-        {/* <Button onClick={openDialog} content={"Open URL (YouTube)"} /> */}
       </div>
       <AudioInput src={filePath} ref={audioRef} />
-      <MediaPlayer className={styles.mediaplayer} audioChannel={audioRef} />
+      <MediaPlayer className={styles.mediaplayer} audioChannel={audioRef} openDialog={openDialog}/>
     </div>
   );
 }

@@ -6,7 +6,14 @@ import AudioVisualisator from "../audioVisualisator";
 import Button from "../button";
 import Input from "../input";
 
-const MediaPlayer = ({ audioChannel }) => {
+import { ReactComponent as PlayIcon } from "../../svg/audio-play.svg";
+import { ReactComponent as PauseIcon } from "../../svg/audio-pause.svg";
+import { ReactComponent as VolumeMuteIcon } from "../../svg/audio-volume-mute.svg";
+import { ReactComponent as VolumeLowIcon } from "../../svg/audio-volume-low.svg";
+import { ReactComponent as VolumeMediumIcon } from "../../svg/audio-volume-medium.svg";
+import { ReactComponent as VolumeHighIcon } from "../../svg/audio-volume-high.svg";
+
+const MediaPlayer = ({ audioChannel, openDialog }) => {
   const [player, setPlayer] = useState({
     isPlay: false,
     isCanPlay: false,
@@ -51,7 +58,7 @@ const MediaPlayer = ({ audioChannel }) => {
       let parseData = (data) => {
         var obj = new Object();
 
-        if (data.tags) {
+        if (data.tags.artist && data.tags.title) {
           obj = { ...obj, title: `${data.tags.artist} - ${data.tags.title}` };
         } else {
           obj = {
@@ -116,7 +123,6 @@ const MediaPlayer = ({ audioChannel }) => {
     }
   }, [player.isMute]);
 
-
   return (
     <>
       <div className={styles.player}>
@@ -132,7 +138,7 @@ const MediaPlayer = ({ audioChannel }) => {
             }}
             disabled={player.isCanPlay ? false : true}
           >
-            {player.isPlay ? "| |" : "▶"}
+            {player.isPlay ? <PauseIcon /> : <PlayIcon />}
           </Button>
           <Button
             onClick={() => {
@@ -168,7 +174,15 @@ const MediaPlayer = ({ audioChannel }) => {
                   }));
             }}
           >
-            {player.isMute ? "🔇" : "🔈"}
+            {player.isMute || player.volume == 0 ? (
+              <VolumeMuteIcon />
+            ) : player.volume > 0 && player.volume <= 33 ? (
+              <VolumeLowIcon />
+            ) : player.volume > 33 && player.volume <= 66 ? (
+              <VolumeMediumIcon />
+            ) : (
+              <VolumeHighIcon />
+            )}
           </Button>
 
           <Input
@@ -194,6 +208,9 @@ const MediaPlayer = ({ audioChannel }) => {
           <span className={styles.value} className="time">
             {calculateTime(player.duration)}
           </span>
+        </div>
+        <div className={styles.line}>
+          <Button onClick={openDialog}>Open File</Button>
         </div>
       </div>
       <AudioVisualisator

@@ -7,8 +7,8 @@
   text-align: center;
   background-color: #282c34;
 
-  .header{
-    z-index: 1;
-  }
 }
 
+.header {
+  z-index: 1;
+}

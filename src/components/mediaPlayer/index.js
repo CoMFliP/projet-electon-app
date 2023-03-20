@@ -1,23 +1,31 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 
-import styles from "./index.module.scss";
+import styles from "./index.module.css";
 
 import AudioVisualisator from "../audioVisualisator";
+import AudioInput from "../audioInput";
 import Button from "../button";
 import Input from "../input";
+import PlayList from "../playlist";
 
 import { ReactComponent as PlayIcon } from "../../svg/audio-play.svg";
 import { ReactComponent as PauseIcon } from "../../svg/audio-pause.svg";
+import { ReactComponent as NextIcon } from "../../svg/audio-next.svg";
+import { ReactComponent as BackIcon } from "../../svg/audio-back.svg";
 import { ReactComponent as VolumeMuteIcon } from "../../svg/audio-volume-mute.svg";
 import { ReactComponent as VolumeLowIcon } from "../../svg/audio-volume-low.svg";
 import { ReactComponent as VolumeMediumIcon } from "../../svg/audio-volume-medium.svg";
 import { ReactComponent as VolumeHighIcon } from "../../svg/audio-volume-high.svg";
 
-const MediaPlayer = ({ audioChannel, openDialog }) => {
+const MediaPlayer = ({ openDialog, src }) => {
+  const audioChannel = useRef();
+
   const [player, setPlayer] = useState({
+    src: src,
     isPlay: false,
     isCanPlay: false,
     currentTime: 0,
+    currentId: 0,
     duration: 0,
     volume: 100,
     isMute: false,
@@ -29,6 +37,8 @@ const MediaPlayer = ({ audioChannel, openDialog }) => {
       theme: "default",
     },
   });
+
+  const [list, setList] = useState([{}]);
 
   let timer;
 
@@ -49,16 +59,37 @@ const MediaPlayer = ({ audioChannel, openDialog }) => {
     audioChannel.current.currentTime = e.target.value;
   };
 
+  const addToPlaylist = () => {
+    if (player.isCanPlay) {
+      setList([
+        ...list,
+        {
+          id: list.length,
+          title: player.info.title,
+          duration: calculateTime(player.duration),
+          src: audioChannel.current.currentSrc,
+        },
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    setPlayer((prevState) => ({ ...prevState, src: src }));
+  }, [src]);
+
   useLayoutEffect(() => {
     audioChannel.current.addEventListener("loadedmetadata", async () => {
-      var data = await window.file.getMetadata(
-        audioChannel.current.currentSrc.replace("safe-file://", "")
-      );
+      var data = "No Data";
+      try {
+        data = await window.file.getMetadata(
+          audioChannel.current.currentSrc.replace("safe-file://", "")
+        );
+      } catch (error) {}
 
       let parseData = (data) => {
         var obj = new Object();
 
-        if (data.tags.artist && data.tags.title) {
+        if (data.tags?.artist && data.tags?.title) {
           obj = { ...obj, title: `${data.tags.artist} - ${data.tags.title}` };
         } else {
           obj = {
@@ -75,9 +106,11 @@ const MediaPlayer = ({ audioChannel, openDialog }) => {
 
       console.log(data);
 
+      // audioChannel.current.play();
+
       setPlayer((prevState) => ({
         ...prevState,
-        isPlay: false,
+        isPlay: true,
         isCanPlay: true,
         info: parseData(data),
       }));
@@ -113,7 +146,7 @@ const MediaPlayer = ({ audioChannel, openDialog }) => {
     } else {
       audioChannel.current.pause();
     }
-  }, [player.isPlay]);
+  }, [player.isPlay, player.currentId, src]);
 
   useEffect(() => {
     if (player.isMute) {
@@ -125,6 +158,7 @@ const MediaPlayer = ({ audioChannel, openDialog }) => {
 
   return (
     <>
+      <AudioInput src={player.src} ref={audioChannel} />
       <div className={styles.player}>
         <div className={styles.line}>
           <span className={styles.title}>{player.info.title}</span>
@@ -142,7 +176,7 @@ const MediaPlayer = ({ audioChannel, openDialog }) => {
           </Button>
           <Button
             onClick={() => {
-              player.visualisation.isEnabled == true
+              player.visualisation.isEnabled === true
                 ? setPlayer((prevState) => ({
                     ...prevState,
                     visualisation: {
@@ -160,6 +194,66 @@ const MediaPlayer = ({ audioChannel, openDialog }) => {
             }}
           >
             {"⚠️"}
+          </Button>
+          <Button
+            onClick={() => {
+              setPlayer((prevState) => ({
+                ...prevState,
+                src: list[player.currentId - 1].src,
+                currentId: player.currentId - 1,
+              }));
+
+              var newList = [...list];
+
+              newList[player.currentId - 1] = {
+                ...list[player.currentId - 1],
+                isPlaying: true,
+              };
+
+              newList[player.currentId] = {
+                ...list[player.currentId],
+                isPlaying: false,
+              };
+
+              setList(newList);
+
+              audioChannel.current.load();
+            }}
+            disabled={list.length > 1 && player.currentId > 1 ? false : true}
+          >
+            <BackIcon />
+          </Button>
+          <Button
+            onClick={() => {
+              setPlayer((prevState) => ({
+                ...prevState,
+                src: list[player.currentId + 1].src,
+                currentId: player.currentId + 1,
+              }));
+
+              var newList = [...list];
+
+              newList[player.currentId + 1] = {
+                ...list[player.currentId + 1],
+                isPlaying: true,
+              };
+
+              newList[player.currentId] = {
+                ...list[player.currentId],
+                isPlaying: false,
+              };
+
+              setList(newList);
+
+              audioChannel.current.load();
+            }}
+            disabled={
+              list.length > 1 && player.currentId + 1 < list.length
+                ? false
+                : true
+            }
+          >
+            <NextIcon />
           </Button>
           <Button
             onClick={() => {
@@ -211,6 +305,27 @@ const MediaPlayer = ({ audioChannel, openDialog }) => {
         </div>
         <div className={styles.line}>
           <Button onClick={openDialog}>Open File</Button>
+          <Button
+            onClick={() => {
+              if (player.isCanPlay) {
+                setList([
+                  ...list,
+                  {
+                    id: list.length,
+                    title: player.info.title,
+                    duration: calculateTime(player.duration),
+                    src: audioChannel.current.currentSrc,
+                    isPlaying: false,
+                  },
+                ]);
+              }
+            }}
+          >
+            Add to Playlist
+          </Button>
+        </div>
+        <div className={styles.line}>
+          <PlayList list={list} />
         </div>
       </div>
       <AudioVisualisator

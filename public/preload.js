@@ -30,7 +30,7 @@ process.once("loaded", () => {
             resolve(tag);
           },
           onError: (error) => {
-            reject(":( " + error.type + error.info);
+            reject(`Error: ${error.type} ${error.info}`);
           },
         });
       });

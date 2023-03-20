@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 
-import styles from "./index.module.scss";
+import styles from "./index.module.css";
 
 const AudioVisualisator = (props) => {
   const [sizeWindow, setSizeWindow] = useState({
@@ -43,10 +43,6 @@ const AudioVisualisator = (props) => {
 
   useEffect(() => {
     initCanvas();
-
-    console.log(src);
-
-    if (analyser !== undefined) frequencyBarGraph();
   }, [sizeWindow.height, sizeWindow.width]);
 
   const initCanvas = () => {

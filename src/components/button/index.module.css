@@ -16,18 +16,19 @@
   white-space: nowrap;
   text-align: center;
 
-  &:hover {
-    background-color: #484f5e;
-  }
+}
 
-  &:disabled {
-    background-color: #7d8594;
-  }
+.button:hover {
+  background-color: #484f5e;
+}
 
-  svg {
-    height: 1.5rem;
-    width: 1.5rem;
+.button:disabled {
+  background-color: #7d8594;
+}
 
-    fill: azure;
-  }
+svg {
+  height: 1.5rem;
+  width: 1.5rem;
+
+  fill: azure;
 }

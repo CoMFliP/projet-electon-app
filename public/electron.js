@@ -24,7 +24,10 @@ function createWindow() {
       })
       .then((result) => {
         // se lance quand on a selectionner le fichier
-        event.reply("selected-file", result.filePaths[0]); // envoie le chemin du fichier selectionner
+
+        if (result.canceled != true) {
+          event.reply("selected-file", result.filePaths[0]); // envoie le chemin du fichier selectionner
+        }
       })
       .catch((err) => {
         console.log(err);

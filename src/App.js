@@ -1,13 +1,11 @@
 import logo from "./logo.svg";
 import { useEffect, useState, useRef } from "react";
 
-import AudioInput from "./components/audioInput";
-
 import MediaPlayer from "./components/mediaPlayer";
 import Header from "./components/header";
 import Button from "./components/button";
 
-import styles from "./App.module.scss";
+import styles from "./App.module.css";
 
 function App() {
   const [filePath, setFile] = useState();
@@ -16,8 +14,6 @@ function App() {
     window.dialog.open();
     window.dialog.getPath(setFile);
   };
-
-  const audioRef = useRef();
 
   useEffect(() => {
     return () => {
@@ -28,10 +24,9 @@ function App() {
   return (
     <div className={styles.app}>
       <div className={styles.header}>
-        <Header content="YT Player" />
+        <Header content="Bruh Player" />
       </div>
-      <AudioInput src={filePath} ref={audioRef} />
-      <MediaPlayer className={styles.mediaplayer} audioChannel={audioRef} openDialog={openDialog}/>
+      <MediaPlayer className={styles.mediaplayer} openDialog={openDialog} src={filePath}/>
     </div>
   );
 }

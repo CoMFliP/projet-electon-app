@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import PropTypes from "prop-types";
 
 import styles from "./index.module.css";
 
 import AudioVisualisator from "../audioVisualisator";
 import AudioInput from "../audioInput";
-import Button from "../button";
-import Input from "../input";
+import Button from "../UI/button";
+import Input from "../UI/input";
 import PlayList from "../playlist";
+import MediaInfo from "./mediaInfo";
 
 import { ReactComponent as PlayIcon } from "../../svg/audio-play.svg";
 import { ReactComponent as PauseIcon } from "../../svg/audio-pause.svg";
@@ -59,20 +61,6 @@ const MediaPlayer = ({ openDialog, src }) => {
     audioChannel.current.currentTime = e.target.value;
   };
 
-  const addToPlaylist = () => {
-    if (player.isCanPlay) {
-      setList([
-        ...list,
-        {
-          id: list.length,
-          title: player.info.title,
-          duration: calculateTime(player.duration),
-          src: audioChannel.current.currentSrc,
-        },
-      ]);
-    }
-  };
-
   useEffect(() => {
     setPlayer((prevState) => ({ ...prevState, src: src }));
   }, [src]);
@@ -84,7 +72,9 @@ const MediaPlayer = ({ openDialog, src }) => {
         data = await window.file.getMetadata(
           audioChannel.current.currentSrc.replace("safe-file://", "")
         );
-      } catch (error) {}
+      } catch (error) {
+        /* empty */
+      }
 
       let parseData = (data) => {
         var obj = new Object();
@@ -161,7 +151,7 @@ const MediaPlayer = ({ openDialog, src }) => {
       <AudioInput src={player.src} ref={audioChannel} />
       <div className={styles.player}>
         <div className={styles.line}>
-          <span className={styles.title}>{player.info.title}</span>
+          <MediaInfo metadata={player.info} />
         </div>
         <div className={styles.line}>
           <Button
@@ -290,7 +280,7 @@ const MediaPlayer = ({ openDialog, src }) => {
           <span className={styles.value}>{player.volume}</span>
         </div>
         <div className={styles.line}>
-          <span className={styles.value} className="time">
+          <span className={styles.value}>
             {calculateTime(player.currentTime)}
           </span>
           <Input
@@ -299,9 +289,7 @@ const MediaPlayer = ({ openDialog, src }) => {
             max={player.duration === null ? 0 : player.duration}
             onChange={handleChangeTime}
           />
-          <span className={styles.value} className="time">
-            {calculateTime(player.duration)}
-          </span>
+          <span className={styles.value}>{calculateTime(player.duration)}</span>
         </div>
         <div className={styles.line}>
           <Button onClick={openDialog}>Open File</Button>
@@ -335,6 +323,11 @@ const MediaPlayer = ({ openDialog, src }) => {
       />
     </>
   );
+};
+
+MediaPlayer.propTypes = {
+  openDialog: PropTypes.func.isRequired,
+  src: PropTypes.string,
 };
 
 export default MediaPlayer;

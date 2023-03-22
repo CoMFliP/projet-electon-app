@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
+import PropTypes from "prop-types";
 
 import styles from "./index.module.css";
 
-const AudioVisualisator = (props) => {
+const AudioVisualisator = ({ audioChannel }) => {
   const [sizeWindow, setSizeWindow] = useState({
     height: window.innerHeight,
     width: window.innerWidth,
   });
 
   const canvasRef = useRef();
-  const audioChannel = props.audioChannel;
 
   var ctx;
   var src;
@@ -117,6 +117,13 @@ const AudioVisualisator = (props) => {
   };
 
   return <canvas className={styles.canvas} ref={canvasRef}></canvas>;
+};
+
+AudioVisualisator.propTypes = {
+  audioChannel: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
+  ]),
 };
 
 export default AudioVisualisator;

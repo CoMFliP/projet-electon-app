@@ -1,9 +1,7 @@
-import logo from "./logo.svg";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 
 import MediaPlayer from "./components/mediaPlayer";
 import Header from "./components/header";
-import Button from "./components/button";
 
 import styles from "./App.module.css";
 
@@ -14,7 +12,7 @@ function App() {
     window.dialog.open();
     window.dialog.getPath(setFile);
   };
-
+  
   useEffect(() => {
     return () => {
       window.dialog.removeEventListener();
@@ -26,7 +24,11 @@ function App() {
       <div className={styles.header}>
         <Header content="Bruh Player" />
       </div>
-      <MediaPlayer className={styles.mediaplayer} openDialog={openDialog} src={filePath}/>
+      <MediaPlayer
+        className={styles.mediaplayer}
+        openDialog={openDialog}
+        src={filePath}
+      />
     </div>
   );
 }

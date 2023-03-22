@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 
 import styles from "./index.module.css";
 
@@ -9,7 +10,7 @@ const PlayList = ({ list }) => {
     index != 0 ? (
       <Track
         key={index}
-        position={track.id}
+        id={track.id}
         title={track.title}
         duration={track.duration}
         isPlaying={track.isPlaying}
@@ -17,6 +18,17 @@ const PlayList = ({ list }) => {
     ) : null
   );
   return <div className={styles.playlist}>{listItems}</div>;
+};
+
+PlayList.propTypes = {
+  list: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      title: PropTypes.string,
+      duration: PropTypes.string,
+      isPlaying: PropTypes.bool,
+    })
+  ).isRequired,
 };
 
 export default PlayList;

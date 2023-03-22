@@ -1,5 +1,5 @@
 {
-  "name": "YTPlayer",
+  "name": "BruhPlayer",
   "version": "0.0.1",
   "main": "./public/electron.js",
   "author": "CoMFlIP",
@@ -12,6 +12,7 @@
     "@testing-library/user-event": "^13.5.0",
     "jsmediatags": "^3.9.7",
     "node": "16.18",
+    "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
@@ -42,11 +43,15 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^18.15.5",
+    "@types/react": "^18.0.28",
     "concurrently": "^7.6.0",
     "cross-env": "^7.0.3",
     "electron": "^22.1.0",
     "electron-builder": "^23.6.0",
     "electronmon": "^2.0.2",
+    "eslint": "^8.36.0",
+    "eslint-plugin-react": "^7.32.2",
     "wait-on": "^7.0.1"
   },
   "build": {

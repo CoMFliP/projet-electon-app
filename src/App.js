@@ -1,18 +1,27 @@
 import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 
 import MediaPlayer from "./components/mediaPlayer";
-import Header from "./components/header";
+import TitleBar from "./components/titlebar";
 
-import styles from "./App.module.css";
+const StylesApp = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+
+  text-align: center;
+  background-color: #222831;
+`;
 
 function App() {
-  const [filePath, setFile] = useState();
+  const [filePath, setFile] = useState("");
 
   const openDialog = () => {
     window.dialog.open();
     window.dialog.getPath(setFile);
   };
-  
+
   useEffect(() => {
     return () => {
       window.dialog.removeEventListener();
@@ -20,16 +29,10 @@ function App() {
   }, []);
 
   return (
-    <div className={styles.app}>
-      <div className={styles.header}>
-        <Header content="Bruh Player" />
-      </div>
-      <MediaPlayer
-        className={styles.mediaplayer}
-        openDialog={openDialog}
-        src={filePath}
-      />
-    </div>
+    <StylesApp>
+      <TitleBar />
+      <MediaPlayer openDialog={openDialog} src={filePath} />
+    </StylesApp>
   );
 }
 

@@ -23,7 +23,7 @@ process.once("loaded", () => {
   });
 
   contextBridge.exposeInMainWorld("file", {
-    getMetadata(path) {
+    getMetadata: (path) => {
       return new Promise((resolve, reject) => {
         new jsmediatags.Reader(path).read({
           onSuccess: (tag) => {
@@ -36,4 +36,17 @@ process.once("loaded", () => {
       });
     },
   });
+
+  contextBridge.exposeInMainWorld("app", {
+    minimize: () => {
+      ipcRenderer.send("minimize");
+    },
+    maximize: () => {
+      ipcRenderer.send("maximize");
+    },
+    close: () => {
+      ipcRenderer.send("close");
+    },
+  });
+
 });

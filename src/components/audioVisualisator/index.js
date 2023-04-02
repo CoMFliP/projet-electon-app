@@ -1,23 +1,36 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import styled from "styled-components";
 
-import styles from "./index.module.css";
+const Canvas = styled.canvas`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background-color: transparent;
+`;
 
-const AudioVisualisator = ({ audioChannel }) => {
+const AudioVisualisator = ({ audioChannel, isEnabled }) => {
   const [sizeWindow, setSizeWindow] = useState({
     height: window.innerHeight,
     width: window.innerWidth,
   });
 
+  const [param, setParam] = useState({
+    isEnabled: null,
+  });
+
+  const [analyser, setAnalyser] = useState();
+  const [reqAnimation, setReqAnimation] = useState();
+  const [ctx, setCtx] = useState();
+
   const canvasRef = useRef();
 
-  var ctx;
   var src;
-  var analyser;
 
-  // useEffect(() => {
-  // console.log(props.isEnabled);
-  // }, [props.isEnabled]);
+  useEffect(() => {
+    setParam((prevState) => ({ ...prevState, isEnabled: isEnabled }));
+  }, [isEnabled]);
 
   useLayoutEffect(() => {
     window.addEventListener("resize", () => {
@@ -29,7 +42,6 @@ const AudioVisualisator = ({ audioChannel }) => {
 
     initCanvas();
     if (!src) initContext();
-    frequencyBarGraph();
 
     return () => {
       window.removeEventListener("resize", () => {
@@ -45,22 +57,36 @@ const AudioVisualisator = ({ audioChannel }) => {
     initCanvas();
   }, [sizeWindow.height, sizeWindow.width]);
 
+  useEffect(() => {
+    cancelAnimationFrame(reqAnimation);
+    frequencyBarGraph();
+  }, [param]);
+
   const initCanvas = () => {
     canvasRef.current.width = sizeWindow.width;
     canvasRef.current.height = sizeWindow.height;
-    ctx = canvasRef.current.getContext("2d");
+    const ctx = canvasRef.current.getContext("2d");
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
+    setCtx(ctx);
   };
 
   const initContext = () => {
     const context = new AudioContext();
-    analyser = context.createAnalyser();
+    const analyser = context.createAnalyser();
+
     src = context.createMediaElementSource(audioChannel.current);
     src.connect(analyser);
     analyser.connect(context.destination);
+
+    setAnalyser(analyser);
   };
 
   const frequencyBarGraph = () => {
+    if (!analyser) {
+      return;
+    }
+
     analyser.fftSize = 512;
     var bufferLength = analyser.frequencyBinCount;
     var dataArray = new Uint8Array(bufferLength);
@@ -74,13 +100,16 @@ const AudioVisualisator = ({ audioChannel }) => {
       var barWidth = 16;
       var barHeight;
 
-      requestAnimationFrame(renderFrame);
+      setReqAnimation(requestAnimationFrame(renderFrame));
       analyser.getByteFrequencyData(dataArray);
 
-      ctx.fillStyle = "#282c34";
+      ctx.fillStyle = "#222831";
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      // console.log(en);
+      if (!param.isEnabled) {
+        return;
+      }
+
       for (var i = 8; i < bufferLength; i++) {
         barHeight = dataArray[i];
 
@@ -90,10 +119,15 @@ const AudioVisualisator = ({ audioChannel }) => {
         grd.addColorStop(0.5, `rgba(255, 0, 0, ${alpha})`);
         grd.addColorStop(0.75, `rgba(255, 255, 0, ${alpha})`);
         grd.addColorStop(1, `rgba(0, 255, 0, ${alpha})`);
-        ctx.fillStyle = grd;
-        ctx.strokeStyle = grd;
 
-        // ctx.fillStyle = `rgb(${barHeight + 100}, 50, 50)`;
+        ctx.strokeStyle = grd;
+        ctx.fillStyle = grd;
+
+        // if (param.isEnabled) {
+        // } else {
+          // ctx.strokeStyle = `rgb(${barHeight + 200}, 50, 50)`;
+          // ctx.fillStyle = `rgb(${barHeight + 50}, 50, 50)`;
+        // }
 
         ctx.beginPath();
         ctx.roundRect(
@@ -113,17 +147,19 @@ const AudioVisualisator = ({ audioChannel }) => {
         }
       }
     }
+
     renderFrame();
   };
 
-  return <canvas className={styles.canvas} ref={canvasRef}></canvas>;
+  return <Canvas ref={canvasRef}></Canvas>;
 };
 
 AudioVisualisator.propTypes = {
   audioChannel: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
-  ]),
+  ]).isRequired,
+  isEnabled: PropTypes.bool.isRequired,
 };
 
 export default AudioVisualisator;

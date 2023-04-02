@@ -1,19 +1,34 @@
 // Module to control the application lifecycle and the native browser window.
-const { app, BrowserWindow, protocol, ipcMain, dialog } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  protocol,
+  ipcMain,
+  dialog,
+  Tray,
+} = require("electron");
 const path = require("path");
 const url = require("url");
 
 // Create the native browser window.
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    minWidth: 800,
+    minHeight: 600,
+    show: false,
+    frame: false,
     // Set the path of an additional "preload" script that can be used to
     // communicate between node-land and browser-land.
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       nodeIntegration: true,
     },
+  });
+
+  mainWindow.once("ready-to-show", () => {
+    mainWindow.setTitle("Bruh Player");
+    mainWindow.setIcon('public/logo.ico');
+    mainWindow.show();
   });
 
   ipcMain.on("open-file-dialog", (event) => {
@@ -33,6 +48,21 @@ function createWindow() {
         console.log(err);
         dialog.showErrorBox("Error", "Something went wrong");
       });
+  });
+
+  ipcMain.on("minimize", () => {
+    mainWindow.minimize();
+  });
+
+  ipcMain.on("maximize", () => {
+    if (mainWindow.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow.maximize();
+    }
+  });
+  ipcMain.on("close", () => {
+    mainWindow.close();
   });
 
   // In production, set the initial browser path to the local bundle generated

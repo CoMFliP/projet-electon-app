@@ -1,20 +1,4 @@
-.player {
-  display: flex;
-  flex-direction: column;
-
-  width: 80%;
-  height: 65%;
-
-  margin: auto;
-  z-index: 1;
-
-  padding: 1rem;
-  border-radius: 0.5rem;
-
-  background-color: rgba(35, 39, 46, 0.85);
-}
-
-span {
+/* span {
   color: azure;
   font-size: large;
   margin-left: 0.25rem;
@@ -23,7 +7,7 @@ span {
 
 span.title {
   width: max-content;
-}
+} */
 
 div.line {
   display: flex;
@@ -46,6 +30,6 @@ div.line:last-child {
   height: 100%;
 }
 
-span.value {
+/* span.value {
   width: 3rem;
-}
+} */

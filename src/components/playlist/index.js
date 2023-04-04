@@ -1,11 +1,68 @@
-import React from "react";
+import React, { useRef, useLayoutEffect } from "react";
 import PropTypes from "prop-types";
 
-import styles from "./index.module.css";
-
 import Track from "./track";
+import styled from "styled-components";
 
-const PlayList = ({ list }) => {
+const StyledPlaylist = styled.div`
+  overflow: hidden;
+
+  height: 100%;
+  width: 100%;
+  background-color: #181a1d7f;
+  border-radius: 0.25rem;
+  overflow: overlay;
+
+  &::-webkit-scrollbar {
+    width: 1rem;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #414754;
+    border-radius: 0.25rem;
+  }
+`;
+
+const PlayList = ({ list, onClick, onDrop }) => {
+  const refPlaylist = useRef();
+
+  useLayoutEffect(() => {
+    refPlaylist.current.addEventListener("drop", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      for (const f of event.dataTransfer.files) {
+        // Using the path attribute to get absolute file path
+        console.log("File Path of dragged files: ", f.path);
+      }
+    });
+
+    refPlaylist.current.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    refPlaylist.current.addEventListener("dragenter", () => {
+      console.log("File is in the Drop Space");
+    });
+
+    refPlaylist.current.addEventListener("dragleave", () => {
+      console.log("File has left the Drop Space");
+    });
+
+    refPlaylist.current.addEventListener("click", () => {
+      onClick();
+    });
+
+    return () => {
+      refPlaylist.current.replaceWith(refPlaylist.current.cloneNode(true));
+    };
+  }, []);
+
   const listItems = list.map((track, index) =>
     index != 0 ? (
       <Track
@@ -17,7 +74,7 @@ const PlayList = ({ list }) => {
       />
     ) : null
   );
-  return <div className={styles.playlist}>{listItems}</div>;
+  return <StyledPlaylist ref={refPlaylist}>{listItems}</StyledPlaylist>;
 };
 
 PlayList.propTypes = {
@@ -29,6 +86,8 @@ PlayList.propTypes = {
       isPlaying: PropTypes.bool,
     })
   ).isRequired,
+  onClick: PropTypes.func.isRequired,
+  onDrop: PropTypes.func.isRequired,
 };
 
 export default PlayList;

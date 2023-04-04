@@ -2,11 +2,9 @@ import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import styles from "./index.module.css";
-
 import AudioVisualisator from "../audioVisualisator";
 import AudioInput from "../audioInput";
-import Button from "../UI/button";
+// import Button from "../UI/button";
 
 import PlayList from "../playlist";
 import MediaInfo from "./mediaInfo";
@@ -32,7 +30,7 @@ const WindowPlayer = styled.div`
   background-color: #181a1d7f;
 `;
 
-const MediaPlayer = ({ openDialog, src }) => {
+const MediaPlayer = ({ openDialog, src, setSrc }) => {
   const audioChannel = useRef();
 
   const [player, setPlayer] = useState({
@@ -122,7 +120,7 @@ const MediaPlayer = ({ openDialog, src }) => {
           list={list}
           setList={setList}
         />
-        <div className={styles.line}>
+        {/* <div className={styles.line}>
           <Button onClick={openDialog}>Open File</Button>
           <Button
             onClick={() => {
@@ -142,10 +140,8 @@ const MediaPlayer = ({ openDialog, src }) => {
           >
             Add to Playlist
           </Button>
-        </div>
-        <div className={styles.line}>
-          <PlayList list={list} />
-        </div>
+        </div> */}
+        <PlayList list={list} onClick={openDialog} onDrop={setSrc}/>
       </WindowPlayer>
       <AudioVisualisator
         audioChannel={audioChannel}
@@ -158,6 +154,7 @@ const MediaPlayer = ({ openDialog, src }) => {
 
 MediaPlayer.propTypes = {
   openDialog: PropTypes.func.isRequired,
+  setSrc: PropTypes.func.isRequired,
   src: PropTypes.string.isRequired,
 };
 

@@ -31,7 +31,7 @@ function App() {
   return (
     <StylesApp>
       <TitleBar />
-      <MediaPlayer openDialog={openDialog} src={filePath} />
+      <MediaPlayer openDialog={openDialog} src={filePath} setSrc={setFile} />
     </StylesApp>
   );
 }

@@ -14,22 +14,27 @@ const StylesMediaInfo = styled.div`
   display: flex;
   flex-direction: row;
 
-  width: 100%;
+  overflow-wrap: anywhere;
+
   height: min-content;
 
-  margin: auto;
   padding: 1rem;
-
+  
   span {
     color: #f2f2f2;
     font-size: large;
     margin: 0.25rem;
+    width: 100%
+    
   }
-
+  
   div {
     display: flex;
     flex-direction: column;
-
+    
+    width: 100%
+    
+    
     justify-items: center;
     align-items: center;
 
@@ -39,9 +44,12 @@ const StylesMediaInfo = styled.div`
 `;
 
 const StyledDisk = styled.div`
+  min-height: 8rem;
+  min-width: 8rem;
+  
   height: 8rem;
   width: 8rem;
-
+  
   animation: ${rotate} 15s linear infinite;
   animation-play-state: ${(props) => (props.isPlay ? "running" : "paused")};
 
@@ -147,10 +155,8 @@ const MediaInfo = (props) => {
       </StyledDisk>
       <div>
         <span>
-          <b>
             {info.artist ? `${info.artist} - ` : null}
             {info.title ?? info.titleSrc}
-          </b>
         </span>
       </div>
     </StylesMediaInfo>

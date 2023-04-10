@@ -13,4 +13,3 @@ Cette version du lecteur possède des fonctions de base :
  3. Pistes suivantes et avancées dans la liste de lecture
  4. Activation/désactivation de la visualisation
  5. Ouverture de fichiers et sauvegarde de la liste de lecture en cours.
- *Au fur et à mesure que l'application se développe, les objectifs atteints seront énumérés ci-dessous*

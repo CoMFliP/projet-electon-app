@@ -1,4 +1,5 @@
-﻿# ![logo](https://raw.githubusercontent.com/CoMFliP/projet-electon-app/main/public/logo.ico) Bruh Player 
+![logo](https://raw.githubusercontent.com/CoMFliP/projet-electon-app/main/public/logo.ico) 
+# Bruh Player 
 
 ## Intoduction
  Il s'agit d'un lecteur multimédia fonctionnel basé sur *React JS* et *Electron*.

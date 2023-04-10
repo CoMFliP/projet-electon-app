@@ -2,7 +2,7 @@
 
 ## Intoduction
  Il s'agit d'un lecteur multimédia fonctionnel basé sur *React JS* et *Electron*.
-Pour le télécharger cliquez ici](https://drive.google.com/file/d/1xrEEv-FBmTXjETUFvV0TYCDpaaBnr5m4/view?usp=sharing), et si vous voulez faire des changements ou voir comment le code fonctionne, vous pouvez cloner ce dépôt et écrire la commande `npm install` dans le dossier racine du projet. Une fois les dépendances nécessaires téléchargées, tapez `npm run electron:start`
+Pour le télécharger cliquez [ici](https://drive.google.com/file/d/1xrEEv-FBmTXjETUFvV0TYCDpaaBnr5m4/view?usp=sharing), et si vous voulez faire des changements ou voir comment le code fonctionne, vous pouvez cloner ce dépôt et écrire la commande `npm install` dans le dossier racine du projet. Une fois les dépendances nécessaires téléchargées, tapez `npm run electron:start`
 
 **Ce projet comporte des fonctionnalités inachevées et/ou manquantes.* 
 ## Fonctionnalité

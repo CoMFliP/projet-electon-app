@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import styled, { keyframes } from "styled-components";
 
-import NotPictureIcon from "../svg/not-picture.svg";
+import NotPictureIcon from "../../UI/svgIcon/svg/not-picture.svg";
+import Egg from "../../../media/bruh.mp3";
 
 const rotate = keyframes`
   to {
@@ -19,22 +20,22 @@ const StylesMediaInfo = styled.div`
   height: min-content;
 
   padding: 1rem;
-  
+
+  font-weight: bold;
+
+  user-select: none;
+
   span {
     color: #f2f2f2;
     font-size: large;
     margin: 0.25rem;
-    width: 100%
-    
+    width: 100%;
   }
-  
+
   div {
     display: flex;
     flex-direction: column;
-    
-    width: 100%
-    
-    
+
     justify-items: center;
     align-items: center;
 
@@ -46,10 +47,10 @@ const StylesMediaInfo = styled.div`
 const StyledDisk = styled.div`
   min-height: 8rem;
   min-width: 8rem;
-  
+
   height: 8rem;
   width: 8rem;
-  
+
   animation: ${rotate} 15s linear infinite;
   animation-play-state: ${(props) => (props.isPlay ? "running" : "paused")};
 
@@ -109,8 +110,6 @@ SVGDisk.propTypes = {
 };
 
 const MediaInfo = (props) => {
-  const [metadata, setMetadata] = useState();
-
   const [info, setInfo] = useState({
     artist: "",
     title: "",
@@ -122,41 +121,40 @@ const MediaInfo = (props) => {
       var blob = new Blob([new Uint8Array(picture.data)], {
         type: picture.format,
       });
-      return setInfo((prevState) => ({
-        ...prevState,
-        picture: URL.createObjectURL(blob),
-      }));
+      return URL.createObjectURL(blob);
     } else {
-      return setInfo((prevState) => ({
-        ...prevState,
-        picture: NotPictureIcon,
-      }));
+      return NotPictureIcon;
     }
   };
 
   useEffect(() => {
-    setMetadata(props.metadata);
+    setInfo((prevState) => ({
+      ...prevState,
+      artist: props.metadata.artist,
+      title: props.metadata.title,
+      fileName: props.metadata.fileName,
+      picture: getPicture(props.metadata.picture),
+    }));
+  }, [props.metadata]);
 
-    if (metadata) {
-      getPicture(metadata.tags?.picture);
-      setInfo((prevState) => ({
-        ...prevState,
-        artist: metadata.tags?.artist,
-        title: metadata.tags?.title,
-        titleSrc: metadata.titleSrc,
-      }));
+  const handleClick = () => {
+    const egg = new Audio(Egg);
+    egg.currentTime = 0.5;
+    egg.volume = 0.2;
+    if (!info.fileName) {
+      egg.play();
     }
-  }, [props.metadata, metadata]);
+  };
 
   return (
     <StylesMediaInfo>
-      <StyledDisk isPlay={props.isPlay}>
+      <StyledDisk isPlay={props.isPlay} onClick={handleClick}>
         <SVGDisk src={info.picture} />
       </StyledDisk>
       <div>
         <span>
-            {info.artist ? `${info.artist} - ` : null}
-            {info.title ?? info.titleSrc}
+          {info.artist ? `${info.artist} - ` : null}
+          {info.title ?? info.fileName}
         </span>
       </div>
     </StylesMediaInfo>

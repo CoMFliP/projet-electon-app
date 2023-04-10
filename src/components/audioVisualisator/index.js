@@ -10,13 +10,15 @@ const Canvas = styled.canvas`
   background-color: transparent;
 `;
 
-const AudioVisualisator = ({ audioChannel, isEnabled }) => {
+const AudioVisualisator = ({ audioChannel, isPlay, isAutoPlay, isEnabled }) => {
   const [sizeWindow, setSizeWindow] = useState({
     height: window.innerHeight,
     width: window.innerWidth,
   });
 
   const [param, setParam] = useState({
+    isPlay: null,
+    isAutoPlay: null,
     isEnabled: null,
   });
 
@@ -29,27 +31,29 @@ const AudioVisualisator = ({ audioChannel, isEnabled }) => {
   var src;
 
   useEffect(() => {
-    setParam((prevState) => ({ ...prevState, isEnabled: isEnabled }));
-  }, [isEnabled]);
+    setParam((prevState) => ({
+      ...prevState,
+      isPlay: isPlay,
+      isAutoPlay: isAutoPlay,
+      isEnabled: isEnabled,
+    }));
+  }, [isPlay, isAutoPlay, isEnabled]);
 
   useLayoutEffect(() => {
-    window.addEventListener("resize", () => {
+    const handleResize = () => {
       setSizeWindow({
         height: window.innerHeight,
         width: window.innerWidth,
       });
-    });
+    };
+    
+    window.addEventListener("resize", handleResize);
 
     initCanvas();
     if (!src) initContext();
 
     return () => {
-      window.removeEventListener("resize", () => {
-        setSizeWindow({
-          height: window.innerHeight,
-          width: window.innerWidth,
-        });
-      });
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -83,7 +87,7 @@ const AudioVisualisator = ({ audioChannel, isEnabled }) => {
   };
 
   const frequencyBarGraph = () => {
-    if (!analyser) {
+    if (!analyser || (!param.isPlay && param.isAutoPlay)) {
       return;
     }
 
@@ -125,8 +129,8 @@ const AudioVisualisator = ({ audioChannel, isEnabled }) => {
 
         // if (param.isEnabled) {
         // } else {
-          // ctx.strokeStyle = `rgb(${barHeight + 200}, 50, 50)`;
-          // ctx.fillStyle = `rgb(${barHeight + 50}, 50, 50)`;
+        // ctx.strokeStyle = `rgb(${barHeight + 200}, 50, 50)`;
+        // ctx.fillStyle = `rgb(${barHeight + 50}, 50, 50)`;
         // }
 
         ctx.beginPath();
@@ -159,6 +163,8 @@ AudioVisualisator.propTypes = {
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   ]).isRequired,
+  isPlay: PropTypes.bool.isRequired,
+  isAutoPlay: PropTypes.bool.isRequired,
   isEnabled: PropTypes.bool.isRequired,
 };
 

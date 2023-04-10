@@ -23,7 +23,7 @@ const StyledInput = styled.div`
 
 const InputRange = styled.input`
   background-color: transparent;
-  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 100%;
   padding: 0;
@@ -69,7 +69,7 @@ const HoverInputRange = styled.div.attrs(({ value, max }) => ({
   ${StyledInput}:active & {
     background-color: #2e3238;
     box-shadow: 0 0 0 1px #2e3238;
-  } ;
+  }
 `;
 
 const ContentInput = styled.div.attrs(

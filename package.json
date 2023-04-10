@@ -1,6 +1,6 @@
 {
   "name": "BruhPlayer",
-  "version": "0.0.1",
+  "version": "0.9.57",
   "main": "./public/electron.js",
   "author": "CoMFlIP",
   "description": "Media player",
@@ -56,8 +56,8 @@
     "wait-on": "^7.0.1"
   },
   "build": {
-    "appId": "com.electron.myapp",
-    "productName": "My Electron App",
+    "appId": "com.electron.bruhplayer",
+    "productName": "Bruh Player",
     "files": [
       "build/**/*",
       "node_modules/**/*"
@@ -69,6 +69,7 @@
       "target": "dmg"
     },
     "win": {
+      "icon": "build/logo.ico",
       "target": "nsis"
     },
     "linux": {

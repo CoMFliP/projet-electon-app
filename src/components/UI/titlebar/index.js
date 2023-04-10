@@ -1,12 +1,8 @@
 import React from "react";
-// import PropTypes from "prop-types";
 import styled from "styled-components";
 
-import { ReactComponent as MinIcon } from "./svg/min-icon.svg";
-import { ReactComponent as MaxIcon } from "./svg/max-icon.svg";
-import { ReactComponent as CloseIcon } from "./svg/close-icon.svg";
-
-import Button from "../UI/button";
+import Button from "../button";
+import SVGIcon from "../svgIcon";
 
 const StyledHeader = styled.span`
   margin: auto;
@@ -14,6 +10,15 @@ const StyledHeader = styled.span`
 
   color: #f2f2f2;
   font-weight: bold;
+
+  user-select: none;
+
+  &::after {
+    content: "v0.9.57";
+    font-weight: normal;
+    margin-left: 0.5rem;
+    color: #818489
+  }
 `;
 
 const StyledButton = styled(Button)`
@@ -61,14 +66,14 @@ const TitleBar = () => {
           window.app.minimize();
         }}
       >
-        <MinIcon />
+        <SVGIcon icon="minimize" />
       </StyledButton>
       <StyledButton
         onClick={() => {
           window.app.maximize();
         }}
       >
-        <MaxIcon />
+        <SVGIcon icon="maximize" />
       </StyledButton>
       <StyledButton
         onClick={() => {
@@ -76,7 +81,7 @@ const TitleBar = () => {
         }}
         hover={`background-color: #cc0000;`}
       >
-        <CloseIcon />
+        <SVGIcon icon="close" />
       </StyledButton>
     </StyledTitleBar>
   );

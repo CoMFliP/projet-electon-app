@@ -2,6 +2,8 @@
 // It has the same sandbox as a Chrome extension.
 const { contextBridge, ipcRenderer } = require("electron");
 const jsmediatags = require("jsmediatags");
+const fs = require("fs");
+const { Buffer } = require("buffer");
 
 // As an example, here we use the exposeInMainWorld API to expose the browsers
 // and node versions to the main window.
@@ -12,9 +14,22 @@ process.once("loaded", () => {
     open: () => {
       ipcRenderer.send("open-file-dialog");
     },
-    getPath: (setState) => {
-      ipcRenderer.on("selected-file", (event, path) => {
-        setState(`safe-file://${path}`);
+    save: (content) => {
+      ipcRenderer.send("save-file-dialog");
+      ipcRenderer.on("saved-file", (event, path) => {
+        fs.writeFile(
+          path.toString(),
+          Buffer.from(JSON.stringify(content, null, 2)),
+          (err) => {
+            if (err) throw err;
+            console.log("Saved!");
+          }
+        );
+      });
+    },
+    getPaths: (setState) => {
+      ipcRenderer.on("selected-files", (event, paths) => {
+        setState(paths);
       });
     },
     removeEventListener: () => {
@@ -35,6 +50,15 @@ process.once("loaded", () => {
         });
       });
     },
+
+    read: (path) => {
+      return new Promise((resolve, reject) => {
+        fs.readFile(path, (err, data) => {
+          if (err) reject("ERR: No such file");
+          resolve(data.toString());
+        });
+      });
+    },
   });
 
   contextBridge.exposeInMainWorld("app", {
@@ -48,5 +72,4 @@ process.once("loaded", () => {
       ipcRenderer.send("close");
     },
   });
-
 });

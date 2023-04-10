@@ -1,14 +1,8 @@
 // Module to control the application lifecycle and the native browser window.
-const {
-  app,
-  BrowserWindow,
-  protocol,
-  ipcMain,
-  dialog,
-  Tray,
-} = require("electron");
+const { app, BrowserWindow, protocol, ipcMain, dialog } = require("electron");
 const path = require("path");
 const url = require("url");
+const fs = require("fs");
 
 // Create the native browser window.
 function createWindow() {
@@ -27,26 +21,39 @@ function createWindow() {
 
   mainWindow.once("ready-to-show", () => {
     mainWindow.setTitle("Bruh Player");
-    mainWindow.setIcon('public/logo.ico');
+    mainWindow.setIcon("/public/logo.ico");
     mainWindow.show();
   });
 
   ipcMain.on("open-file-dialog", (event) => {
     dialog
       .showOpenDialog(mainWindow, {
-        properties: ["openFile"],
-        filters: [{ name: "Sound", extensions: ["mp3"] }],
+        properties: ["openFile", "multiSelections"],
+        filters: [
+          { name: "Sound", extensions: ["mp3"] },
+          { name: "Playlist", extensions: ["bruh"] },
+        ],
       })
       .then((result) => {
-        // se lance quand on a selectionner le fichier
-
-        if (result.canceled != true) {
-          event.reply("selected-file", result.filePaths[0]); // envoie le chemin du fichier selectionner
+        if (!result.canceled) {
+          event.reply("selected-files", result.filePaths);
         }
       })
       .catch((err) => {
         console.log(err);
         dialog.showErrorBox("Error", "Something went wrong");
+      });
+  });
+
+  ipcMain.on("save-file-dialog", (event) => {
+    dialog
+      .showSaveDialog(mainWindow, {
+        filters: [{ name: "Playlist", extensions: ["bruh"] }],
+      })
+      .then((result) => {
+        if (!result.canceled) {
+          event.reply("saved-file", result.filePath);
+        }
       });
   });
 
@@ -61,6 +68,7 @@ function createWindow() {
       mainWindow.maximize();
     }
   });
+
   ipcMain.on("close", () => {
     mainWindow.close();
   });
